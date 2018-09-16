@@ -85,6 +85,8 @@ export class Entity implements IEntity {
   // entité et appelle la fonction `fn` pour chacun, afin
   // d'implémenter le patron de conception [visiteur](https://fr.wikipedia.org/wiki/Visiteur_(patron_de_conception)).
   walkComponent(fn: IComponentWalker): void {
-    throw new Error('Not implemented');
+    this.components.forEach((component, name) => {
+      fn(component, name.toString());
+    })
   }
 }
