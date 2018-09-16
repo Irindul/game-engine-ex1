@@ -12,6 +12,7 @@ export interface IComponentWalker {
 // Cette interface présente la structure d'une entité valide
 export interface IEntity {
   components: Map<String, IComponent>;
+  children: Map<String, IEntity>;
 
   addChild(name: string, child: IEntity): void;
   getChild(name: string): IEntity | undefined;
@@ -32,9 +33,11 @@ export class Entity implements IEntity {
   static componentCreator = ComponentFactory.create;
 
   components: Map<String, IComponent>;
+  children: Map<String, IEntity>;
 
   constructor() {
     this.components = new Map<String, IComponent>();
+    this.children = new Map<String, IEntity>();
   }
 
   // ## Méthode *addComponent*
@@ -57,7 +60,7 @@ export class Entity implements IEntity {
   // La méthode *addChild* ajoute à l'objet courant un objet
   // enfant.
   addChild(objectName: string, child: IEntity) {
-    throw new Error('Not implemented');
+    this.children.set(objectName, child);
   }
 
   // ## Fonction *getChild*
