@@ -67,7 +67,7 @@ export class Entity implements IEntity {
   // La fonction *getChild* retourne un objet existant portant le
   // nom spécifié, dont l'objet courant est le parent.
   getChild(objectName: string): IEntity | undefined {
-    throw new Error('Not implemented');
+    return this.children.get(objectName);
   }
 
   // ## Méthode *walkChildren*
