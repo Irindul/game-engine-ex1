@@ -11,6 +11,8 @@ export interface IComponentWalker {
 // # Interface *IEntity*
 // Cette interface présente la structure d'une entité valide
 export interface IEntity {
+  components: Array<IComponent>;
+
   addChild(name: string, child: IEntity): void;
   getChild(name: string): IEntity | undefined;
   addComponent(type: string): IComponent;
@@ -29,12 +31,19 @@ export class Entity implements IEntity {
   // cette fonction afin de réaliser des tests unitaires.
   static componentCreator = ComponentFactory.create;
 
+  components: Array<IComponent>;
+
+  constructor() {
+    this.components = new Array<IComponent>();
+  }
+  
   // ## Méthode *addComponent*
   // Cette méthode prend en paramètre le type d'un composant et
   // instancie un nouveau composant.
   addComponent(type: string): IComponent {
     const newComponent = Entity.componentCreator(type, this);
-    throw new Error('Not implemented');
+    this.components.push(newComponent);
+    return newComponent;
   }
 
   // ## Fonction *getComponent*
