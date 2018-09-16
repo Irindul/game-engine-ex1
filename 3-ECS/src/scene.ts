@@ -42,11 +42,11 @@ export class Scene {
   static create(description: ISceneDesc): Promise<Scene> {
     const scene = new Scene(description);
     Scene.current = scene;
-    throw new Error('Not implemented');
+    return Promise.resolve(scene);
   }
 
   private constructor(description: ISceneDesc) {
-    throw new Error('Not implemented');
+    
   }
 
   // ## Fonction *findObject*
