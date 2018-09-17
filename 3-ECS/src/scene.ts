@@ -32,6 +32,11 @@ export interface ISceneDesc {
 export class Scene {
   static current: Scene;
 
+  entities: Map<String, IEntity>;
+  components: Map<IComponentDesc, IComponent>;
+
+  root: IEntity;
+
   // ## Fonction statique *create*
   // La fonction *create* permet de créer une nouvelle instance
   // de la classe *Scene*, contenant tous les objets instanciés
@@ -39,21 +44,54 @@ export class Scene {
   // description de la hiérarchie et ses paramètres. La fonction
   // retourne une promesse résolue lorsque l'ensemble de la
   // hiérarchie est configurée correctement.
-  static create(description: ISceneDesc): Promise<Scene> {
+  static async create(description: ISceneDesc): Promise<Scene> {
     const scene = new Scene(description);
     Scene.current = scene;
-    throw new Error('Not implemented');
+    await scene.setupComponents();
+    return Promise.resolve(scene);
   }
 
   private constructor(description: ISceneDesc) {
-    throw new Error('Not implemented');
+    this.entities = new Map<String, IEntity>();
+    this.components = new Map<IComponentDesc, IComponent>();
+    this.root = new Entity();
+    this.createChildren(description, this.root);
+  }
+
+  createChildren(description: ISceneDesc, optionalParent: IEntity) {
+    Object.keys(description).forEach(key => {
+      const entityDesc = description[key];
+      const entity = new Entity();
+      optionalParent.addChild(key, entity);
+
+      this.createChildren(entityDesc.children, entity);
+
+      Object.keys(entityDesc.components).forEach(async (type) => {
+        const componentDesc = entityDesc.components[type];
+        const componentAdded = entity.addComponent(type);
+        this.components.set(componentDesc, componentAdded);
+      })
+      this.entities.set(key, entity);
+    })
+  }
+
+  async setupComponents(): Promise<any> {
+    let promises: Promise<any>[] = [];
+    this.components.forEach((comp, desc) => {
+      let promise = comp.setup(desc);
+      if (promise) {
+        promises.push(promise);
+      }
+    })
+    
+    await Promise.all(promises)
   }
 
   // ## Fonction *findObject*
   // La fonction *findObject* retourne l'objet de la scène
   // portant le nom spécifié.
   findObject(objectName: string): IEntity {
-    throw new Error('Not implemented');
+    return <IEntity>this.entities.get(objectName);
   }
 
   // ## Méthode *walk*
@@ -61,6 +99,9 @@ export class Scene {
   // scène et appelle la fonction `fn` pour chacun, afin
   // d'implémenter le patron de conception [visiteur](https://fr.wikipedia.org/wiki/Visiteur_(patron_de_conception)).
   walk(fn: ISceneWalker): Promise<any> {
-    throw new Error('Not implemented');
+    this.entities.forEach((entity, name) => {
+      fn(entity, name.toString());
+    })
+    return Promise.resolve();
   }
 }
